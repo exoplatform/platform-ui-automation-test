@@ -1,0 +1,27 @@
+version: '2'
+services:
+  exo:
+    image: plf:latest
+    environment:
+      EXO_DB_TYPE: mysql
+      EXO_DB_NAME: exo
+      EXO_DB_USER: exo
+      EXO_DB_PASSWORD: exo
+      EXO_DB_HOST: mysql
+      EXO_ADDONS_LIST: exo-jdbc-driver-mysql
+      EXO_CUSTOMER_VHOST: localhost
+    expose:
+      - "8080"
+    ports:
+      - "8080:8080"
+    links:
+      - mysql
+    depends_on:
+      - mysql
+  mysql:
+    image: mysql:5.6
+    environment:
+      MYSQL_ROOT_PASSWORD: my-secret-pw
+      MYSQL_DATABASE: exo
+      MYSQL_USER: exo
+      MYSQL_PASSWORD: exo

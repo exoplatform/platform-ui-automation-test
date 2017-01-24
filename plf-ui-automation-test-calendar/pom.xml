@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>platform-ui-automation-test</artifactId>
+    <groupId>com.exoplatform.platform.ui.automation.test</groupId>
+    <version>1.0.x-SNAPSHOT</version>
+    <relativePath>..</relativePath>
+  </parent>
+  <artifactId>plf-ui-automation-test-calendar</artifactId>
+  <packaging>jar</packaging>
+  <name>eXo PLF UI Automation Test:: Calendar</name>
+  <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>plf-ui-automation-test-commons</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+</project>
