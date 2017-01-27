@@ -36,7 +36,7 @@ public class Platform {
     } catch (Exception ex) {
       System.out.print("RG skip exception " + ex.getStackTrace());
     }
-    if (!alreadySkipped) {
+    if (alreadySkipped == false) {
       System.out.print("Skip the UI ");
       new RegisterSoftware().skip();
     }

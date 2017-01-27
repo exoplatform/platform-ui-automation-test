@@ -12,7 +12,7 @@ import com.codeborne.selenide.SelenideElement;
 public class RegisterSoftware {
 
   /** This Element is here only for the Registration Software Page */
-  public static SelenideElement element = $(By.cssSelector("plf-registration"));
+  public static SelenideElement element = $(By.className("plf-registration"));
 
   public RegisterSoftware() {
 
