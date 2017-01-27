@@ -12,7 +12,7 @@ import com.codeborne.selenide.Configuration;
  */
 public class BaseTest {
 
-  public String ipAddress = "192.168.3.143";
+  public String ipAddress = "localhost";
 
   @Before
   public void setup() {
