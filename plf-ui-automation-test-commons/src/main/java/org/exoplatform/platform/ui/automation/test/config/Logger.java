@@ -1,15 +1,17 @@
 package org.exoplatform.platform.ui.automation.test.config;
 
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 /**
  *
  */
-public class LoggerTest {
+public class Logger {
 
-	public static final org.slf4j.Logger logger = LoggerFactory.getLogger(BaseTest.class);
+	public static final org.slf4j.Logger logger = LoggerFactory.getLogger(org.exoplatform.platform.ui.automation.test.config.Logger.class);
+
+	private Logger(){
+
+	}
 
 	public static String log(String message) {
 		Throwable t = new Throwable();

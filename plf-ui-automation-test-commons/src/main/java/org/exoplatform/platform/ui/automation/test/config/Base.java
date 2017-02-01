@@ -13,7 +13,7 @@ import com.codeborne.selenide.Configuration;
 /**
  * Created by mgreau on 20/01/2017.
  */
-public class BaseTest {
+public class Base {
 
   @Before
   public void setup() throws SocketException {

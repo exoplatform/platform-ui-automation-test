@@ -4,11 +4,11 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import org.exoplatform.platform.ui.automation.test.config.BaseTest;
+import org.exoplatform.platform.ui.automation.test.config.Base;
 import org.exoplatform.platform.ui.automation.test.commons.pageobject.Platform;
 import org.exoplatform.platform.ui.automation.test.commons.pageobject.RegisterSoftware;
 
-public final class RegisterSoftwareTestIT extends BaseTest {
+public final class RegisterSoftwareTestIT extends Base {
 
   public RegisterSoftwareTestIT() {
     super();

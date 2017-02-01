@@ -1,17 +1,17 @@
 package org.exoplatform.platform.ui.automation.test.calendar;
 
-import static org.exoplatform.platform.ui.automation.test.config.LoggerTest.info;
-
-import org.exoplatform.platform.ui.automation.test.calendar.pageobject.*;
+import com.codeborne.selenide.Selenide;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 
 import org.exoplatform.platform.ui.automation.test.commons.pageobject.Platform;
-import org.exoplatform.platform.ui.automation.test.config.BaseTest;
+import org.exoplatform.platform.ui.automation.test.config.UIATBase;
+import org.openqa.selenium.By;
 
-public class CalendarBaseTest extends BaseTest{
+import static com.codeborne.selenide.Selenide.$;
+
+public class CalendarUIATBase extends UIATBase {
 
   @Before
   public void init() {
@@ -23,12 +23,15 @@ public class CalendarBaseTest extends BaseTest{
        .ensureAccountSetupIsSkipped()
        .ensureUserIsLoggedIn();
 
-    new Calendar().open();
+    // Go to Calendar Page
+    $(By.className("uiIconPLFCalendar")).click();
 
   }
 
   @After
   public void stop(){
+
+    Selenide.close();
 
   }
 
