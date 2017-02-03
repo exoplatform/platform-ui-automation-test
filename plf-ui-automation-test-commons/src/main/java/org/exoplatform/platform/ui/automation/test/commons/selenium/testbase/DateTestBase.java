@@ -1,5 +1,6 @@
 package org.exoplatform.platform.ui.automation.test.commons.selenium.testbase;
 
+import org.exoplatform.platform.ui.automation.test.commons.selenium.TestBase;
 import org.exoplatform.platform.ui.automation.test.config.Logger;
 
 import java.text.DateFormat;
@@ -8,16 +9,23 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+/**
+ * @TODO: Use {@link java.util.Formatter.DateTime} instead.
+ */
 public class DateTestBase {
-  public DateTestBase() {
+  private final TestBase testBase;
+
+  public DateTestBase(TestBase testBase) {
+    this.testBase = testBase;
   }
+
 
   /**
    * Get minute in format "HH" from current date
    *
    * @return hours
    */
-  public static int getHours() {
+  public int getHours() {
     Date date = new Date();
     Calendar cal = Calendar.getInstance();
     cal.setTime(date);
@@ -31,7 +39,7 @@ public class DateTestBase {
    *
    * @param format
    */
-  public static String getDateByTextFormat(String format) {
+  public String getDateByTextFormat(String format) {
     DateFormat dateFormat = new SimpleDateFormat(format);
     Calendar cal = Calendar.getInstance();
     String date = dateFormat.format(cal.getTime());
@@ -45,7 +53,7 @@ public class DateTestBase {
    * @param format
    * @return firstDayOfWeek
    */
-  public static String getFirstDayOfWeek(String format) {
+  public String getFirstDayOfWeek(String format) {
     DateFormat dateFormat = new SimpleDateFormat(format);
     Date date = new Date();
     Calendar calendar = Calendar.getInstance();
@@ -63,7 +71,7 @@ public class DateTestBase {
    * @param format
    * @return firstDayOfWeek
    */
-  public static String getLastDayOfWeek(String format) {
+  public String getLastDayOfWeek(String format) {
     DateFormat dateFormat = new SimpleDateFormat(format);
     Calendar currentDate = Calendar.getInstance();
     int firstDayOfWeek = currentDate.getFirstDayOfWeek();
@@ -87,7 +95,7 @@ public class DateTestBase {
    * @param format
    * @return current Date of system
    */
-  public static String getCurrentDate(String format) {
+  public String getCurrentDate(String format) {
     DateFormat dateFormat = new SimpleDateFormat(format);
     Date date = new Date();
     return (dateFormat.format(date));
@@ -100,7 +108,7 @@ public class DateTestBase {
    * @param local
    * @return current Date with correct time zone
    */
-  public static String getCurrentDate(String format, String local) {
+  public String getCurrentDate(String format, String local) {
     DateFormat df = new SimpleDateFormat(format);
     Date date = new Date();
     df.setTimeZone(TimeZone.getTimeZone(local));
@@ -115,7 +123,7 @@ public class DateTestBase {
    * @param format
    * @return string minute
    */
-  public static String addMinuteToCurrentDateTime(int min, String... format) {
+  public String addMinuteToCurrentDateTime(int min, String... format) {
     DateFormat dateFormat = format.length > 0 ? new SimpleDateFormat(format[0]) : new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
     Calendar cal = Calendar.getInstance();
     cal.add(Calendar.MINUTE, min);
@@ -128,7 +136,7 @@ public class DateTestBase {
    * @param gap distance from current date
    * @return date in format "dd"
    */
-  public static String getDate(int gap, String format) {
+  public String getDate(int gap, String format) {
     DateFormat dateFormat = new SimpleDateFormat(format);
     Calendar cal = Calendar.getInstance();
     cal.add(Calendar.DAY_OF_MONTH, gap);
@@ -143,7 +151,7 @@ public class DateTestBase {
    * @param format
    * @return date in format
    */
-  public static String getDateFromFirstDayOfWeek(int gap, String format) {
+  public String getDateFromFirstDayOfWeek(int gap, String format) {
     DateFormat dateFormat = new SimpleDateFormat(format);
     Date date = new Date();
     Calendar calendar = Calendar.getInstance();
@@ -162,7 +170,7 @@ public class DateTestBase {
    * @param gap distance from current date
    * @return day of week (monday, tuesday,..., sunday)
    */
-  public static int getDayOfWeek(int gap) {
+  public int getDayOfWeek(int gap) {
     Calendar cal = Calendar.getInstance();
     cal.add(Calendar.DAY_OF_MONTH, gap);
     return cal.get(Calendar.DAY_OF_WEEK);
@@ -174,7 +182,7 @@ public class DateTestBase {
    * @param format
    * @return date
    */
-  public static String getDayOfNextMonth(String format, int dayNum, int weekNum) {
+  public String getDayOfNextMonth(String format, int dayNum, int weekNum) {
     DateFormat dateFormat = new SimpleDateFormat(format);
     Calendar calendar = Calendar.getInstance();
 
@@ -195,7 +203,7 @@ public class DateTestBase {
    * @param year
    * @return dayOfYear
    */
-  public static String getDayOfNextYear(String format, int year) {
+  public String getDayOfNextYear(String format, int year) {
     DateFormat dateFormat = new SimpleDateFormat(format);
     Calendar calendar = Calendar.getInstance();
 
@@ -214,7 +222,7 @@ public class DateTestBase {
    * @param format
    * @return
    */
-  public static String getDayOfNextWeek(String format) {
+  public String getDayOfNextWeek(String format) {
     DateFormat dateFormat = new SimpleDateFormat(format);
     Calendar calendar = Calendar.getInstance();
     String dayOfNextMonth1 = dateFormat.format(calendar.getTime());
@@ -233,13 +241,13 @@ public class DateTestBase {
    *
    * @return weekNum
    */
-  public static int getWeekNumber() {
+  public int getWeekNumber() {
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(new Date());
     return calendar.get(Calendar.DAY_OF_WEEK);
   }
 
-  public static int getDayNumber() {
+  public int getDayNumber() {
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(new Date());
     return calendar.get(Calendar.DATE);
@@ -251,7 +259,7 @@ public class DateTestBase {
    * @param format as MMM for month, dd for day, or yyyy for year
    * @return dateFormat.format(now.getTime())
    */
-  public static String getCurrentMonthDayYear(String format) {
+  public String getCurrentMonthDayYear(String format) {
     DateFormat dateFormat = new SimpleDateFormat(format);
     Calendar now = Calendar.getInstance();
     return dateFormat.format(now.getTime());
@@ -262,7 +270,7 @@ public class DateTestBase {
    *
    * @return minute
    */
-  public static  int getMinute() {
+  public int getMinute() {
     Date date = new Date();
     Calendar cal = Calendar.getInstance();
     cal.setTime(date);

@@ -3,7 +3,9 @@ package org.exoplatform.platform.ui.automation.test.commons.selenium.testbase;
 /**
  * Created by mgreau on 01/02/2017.
  */
-public class DefaultDataTestBase {
+public final class DefaultDataTestBase {
+
+  private DefaultDataTestBase(){}
 
   /*========Default System Property=============*/
   public static final String DEFAULT_SSOTYPE="";
