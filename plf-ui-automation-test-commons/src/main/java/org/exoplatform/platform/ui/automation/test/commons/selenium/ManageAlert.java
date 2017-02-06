@@ -1,18 +1,14 @@
 package org.exoplatform.platform.ui.automation.test.commons.selenium;
 
+import org.exoplatform.platform.ui.automation.test.commons.selenium.testbase.ElementEventTestBase;
+import org.junit.Assert;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.WebDriver;
-import org.testng.Assert;
 
-public class ManageAlert extends TestBase{
-
-	public ManageAlert(WebDriver dr,String...plfVersion){
-		driver = dr;
-	}
-
-	Button button = new Button(driver);
+public class ManageAlert{
+	private Button button;
 
 	//ECMS > Symlink
 	public final By ELEMENT_ALERT = By.xpath("//*[contains(@class, 'popupTitle') and contains(text(), 'Warning')]");
@@ -20,14 +16,29 @@ public class ManageAlert extends TestBase{
 	public final By ELEMENT_INFO = By.xpath("//*[contains(@class, 'infoIcon')]");
 	public final By ELEMENT_CONFIRM = By.xpath("//*[contains(@class, 'confirmationIcon')]");
 
+	private final TestBase testBase;
+
+	private ElementEventTestBase evt;
+
+	private WebDriver seleniumWebDriver;
+
+
+	public ManageAlert(TestBase testBase) {
+		this.testBase = testBase;
+		this.evt = testBase.getElementEventTestBase();
+		this.seleniumWebDriver = testBase.getSeleniumDriver();
+		this.button = new Button(testBase);
+	}
+
+
 	/**
 	 * accept alert
 	 */
 	public void acceptAlert() {
 		try {
-			Alert alert = driver.switchTo().alert();
+			Alert alert = seleniumWebDriver.switchTo().alert();
 			alert.accept();
-			switchToParentWindow();
+			evt.switchToParentWindow();
 		} catch (NoAlertPresentException e) {
 		}
 		Utils.pause(1000);
@@ -38,9 +49,9 @@ public class ManageAlert extends TestBase{
 	 */
 	public void cancelAlert() {
 		try {
-			Alert alert = driver.switchTo().alert();
+			Alert alert = seleniumWebDriver.switchTo().alert();
 			alert.dismiss();
-			switchToParentWindow();
+			evt.switchToParentWindow();
 		} catch (NoAlertPresentException e) {
 		}
 		Utils.pause(1000);
@@ -53,7 +64,7 @@ public class ManageAlert extends TestBase{
 	public String getTextFromAlert() {
 		Utils.pause(1000);
 		try {
-			Alert alert = driver.switchTo().alert();
+			Alert alert = seleniumWebDriver.switchTo().alert();
 			return alert.getText();
 		} catch (NoAlertPresentException e) {
 			return "";
@@ -70,13 +81,13 @@ public class ManageAlert extends TestBase{
 		String message = getTextFromAlert();
 		System.out.println(message);
 		System.out.println(confirmationText);
-		int timeOut = wait.length > 0 ? wait[0] : DEFAULT_TIMEOUT;
+		int timeOut = wait.length > 0 ? wait[0] : testBase.getDefaultTimeout();
 		if (message.isEmpty()) {
-			if (loopCount > timeOut/500) {
+			if (testBase.loopCount > timeOut/500) {
 				Assert.fail("Message is empty");
 			}
 			Utils.pause(500);
-			loopCount++;
+			testBase.loopCount++;
 			waitForConfirmation(confirmationText);
 			return;
 		}
@@ -91,7 +102,7 @@ public class ManageAlert extends TestBase{
 
 			Utils.pause(100);
 		}
-		Alert alert = driver.switchTo().alert();
+		Alert alert = seleniumWebDriver.switchTo().alert();
 		alert.accept();
 		Utils.pause(3000);
 	}
@@ -102,19 +113,24 @@ public class ManageAlert extends TestBase{
 	 */
 	public void verifyAlertMessage(String message){
 		Utils.pause(1000);
-		if (isElementPresent(ELEMENT_MESSAGE)){
-			assert getText(ELEMENT_MESSAGE).contains(message):"Message is wrong. Actual msg is "+getText(ELEMENT_MESSAGE);	
-		}else if (isElementPresent(ELEMENT_INFO)){
-			assert getText(ELEMENT_INFO).contains(message):"Message is wrong. Actual msg is "+getText(ELEMENT_INFO);	
+		if (evt.isElementPresent(ELEMENT_MESSAGE)){
+			assert evt.getText(ELEMENT_MESSAGE)
+																 .contains(message):"Message is wrong. Actual msg is "+ evt.getText(
+							ELEMENT_MESSAGE);
+		}else if (evt.isElementPresent(ELEMENT_INFO)){
+			assert evt.getText(ELEMENT_INFO).contains(message):"Message is wrong. Actual msg is "+ evt
+							.getText(ELEMENT_INFO);
 		}
-		else if (isElementPresent(ELEMENT_CONFIRM)){
-			assert getText(ELEMENT_CONFIRM).contains(message):"Message is wrong. Actual msg is "+getText(ELEMENT_CONFIRM);	
+		else if (evt.isElementPresent(ELEMENT_CONFIRM)){
+			assert evt.getText(ELEMENT_CONFIRM)
+																 .contains(message):"Message is wrong. Actual msg is "+ evt.getText(
+							ELEMENT_CONFIRM);
 		}
-		if (waitForAndGetElement(button.ELEMENT_OK_BUTTON, 5000, 0) != null){
-			click(button.ELEMENT_OK_BUTTON);
+		if (evt.waitForAndGetElement(button.ELEMENT_OK_BUTTON, 5000, 0) != null){
+			evt.click(button.ELEMENT_OK_BUTTON);
 		}
-		if (waitForAndGetElement(button.ELEMENT_YES_BUTTON, 3000, 0) != null){
-			click(button.ELEMENT_YES_BUTTON);
+		if (evt.waitForAndGetElement(button.ELEMENT_YES_BUTTON, 3000, 0) != null){
+			evt.click(button.ELEMENT_YES_BUTTON);
 		}
 		Utils.pause(1000);
 	}
@@ -125,10 +141,10 @@ public class ManageAlert extends TestBase{
 	 */
 	public void inputAlertText(String text){
 		try {
-			Alert alert = driver.switchTo().alert();
+			Alert alert = seleniumWebDriver.switchTo().alert();
 			alert.sendKeys(text);
 			alert.accept();
-			switchToParentWindow();
+			evt.switchToParentWindow();
 		} catch (NoAlertPresentException e) {
 		}
 		Utils.pause(1000);

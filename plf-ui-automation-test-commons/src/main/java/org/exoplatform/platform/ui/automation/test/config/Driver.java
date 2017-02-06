@@ -1,13 +1,11 @@
 package org.exoplatform.platform.ui.automation.test.config;
 
-import org.exoplatform.platform.ui.automation.test.commons.selenium.testbase.DefaultDataTestBase;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.ie.InternetExplorerDriver;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
@@ -21,12 +19,12 @@ import static org.exoplatform.platform.ui.automation.test.config.Logger.info;
  *
  * <p>
  *   <i>Refactoring:</i><br/>
- *   This class contains the old code from TestBase about Driver configuration.
+ *   This class contains the old code from TestBase about <b>Driver configuration</b>.
  * </p>
  */
 public class Driver {
 
-  private WebDriver driver;
+  private WebDriver seleniumDriver;
 
   private String browser;
 
@@ -40,119 +38,103 @@ public class Driver {
     baseUrl = System.getProperty("baseUrl");
   }
 
-  public WebDriver createWebDriver() {
+  public WebDriver createSeleniumWebDriver() {
 
-    return initNewDriver(browser);
+    return initDriver(browser);
   }
 
   /**
-   * change lanugage of browser
+   * change language of browser
    *
    * @param language English: "en"
    *                 French: "fr"
    */
-  public void initFFBrowserWithSetLanguageBrowser(String language) {
+  public WebDriver initFFBrowserWithSetLanguageBrowser(String language) {
     FirefoxProfile profile = new FirefoxProfile();
     profile.setPreference("intl.accept_languages", language);
-    driver = new FirefoxDriver(profile);
-    baseUrl = System.getProperty("baseUrl");
-    if (baseUrl == null)
-      baseUrl = DefaultDataTestBase.DEFAULT_BASEURL;
-    action = new Actions(driver);
+    seleniumDriver = new FirefoxDriver(profile);
+    return seleniumDriver;
   }
 
-  /**
-   * init browser
-   *
-   * @param opParams
-   */
-  public void initSeleniumTest(Object... opParams) {
-    initSeleniumTestWithOutTermAndCondition();
-    driver.manage().window().maximize();
-    driver.navigate().refresh();
-    termsAndConditions(opParams);
-  }
+
 
   /**
    * initNewIEBrowserWithNativeEvent
    */
-  public void initNewIEBrowserWithNativeEvent() {
+  public WebDriver initNewIEBrowserWithNativeEvent() {
     info("initNewIEBrowserWithNativeEvent");
-    System.setProperty("webdriver.ie.driver", ieDriver);
     DesiredCapabilities capabilitiesIE = DesiredCapabilities.internetExplorer();
     capabilitiesIE.setCapability("ignoreProtectedModeSettings", true);
     capabilitiesIE.setCapability("nativeEvents", true);
     capabilitiesIE.setCapability("ignoreZoomSetting", true);
     capabilitiesIE.setCapability(InternetExplorerDriver.IE_ENSURE_CLEAN_SESSION, true);
     capabilitiesIE.setCapability("initialBrowserUrl", baseUrl);
-    newDriver = new InternetExplorerDriver(capabilitiesIE);
+    return new InternetExplorerDriver(capabilitiesIE);
   }
 
-  public void initSeleniumTestWithOutTermAndCondition(Object... opParams) {
 
-    if ("chrome".equals(browser)) {
-      driver = initChromeDriver();
-      chromeFlag = true;
-    } else if ("iexplorer".equals(browser)) {
-      driver = initIEDriver();
-      ieFlag = true;
-    } else {
-      driver = initFFDriver();
-    }
-    action = new Actions(driver);
-  }
 
   /**
    * init newDriver
    */
-  public WebDriver initNewDriver(final String browser) {
+  public WebDriver initDriver(final String browser) {
     WebDriver newDriver;
     if ("chrome".equals(browser)) {
       newDriver = initChromeDriver();
     } else if ("iexplorer".equals(browser)) {
       newDriver = initIEDriver();
-      ieFlag = true;
     } else {
       newDriver = initFFDriver();
     }
     newDriver.manage().window().maximize();
+    return newDriver;
   }
 
   /**
-   * Start new driver without cache
+   * init newDriver
    */
-  public void startNewDriver() {
-    if ("chrome".equals(browser)) {
-      newDriver = new ChromeDriver();
-    } else if ("iexplorer".equals(browser)) {
-      newDriver = new InternetExplorerDriver();
-      ieFlag = true;
-    } else {
-      newDriver = new FirefoxDriver();
-    }
+  public WebDriver initDriver() {
+    return initDriver(browser);
+  }
+
+  public boolean isChromeDriver(WebDriver wd){
+    return wd instanceof ChromeDriver;
+  }
+
+  public boolean isIEDriver(WebDriver wd){
+    return wd instanceof InternetExplorerDriver;
+  }
+
+  public boolean isIEDriver(){
+    return seleniumDriver instanceof InternetExplorerDriver;
+  }
+
+
+  public boolean isFFDriver(WebDriver wd){
+    return wd instanceof FirefoxDriver;
+  }
+
+  /**
+   * Start new seleniumWebDriver without cache
+   */
+  public WebDriver startNewDriver() {
+    final WebDriver newDriver = initDriver();
     newDriver.manage().window().maximize();
     newDriver.navigate().refresh();
     newDriver.navigate().to(baseUrl);
+    return newDriver;
   }
 
   /**
-   * Init Chrome driver
+   * Init Chrome seleniumWebDriver
    */
   public ChromeDriver initChromeDriver() {
-    info("Init chrome driver");
+    info("Init chrome seleniumWebDriver");
     String pathFile = "";
     String fs = File.separator;
     String temp = System.getProperty("user.dir") + "/src/main/resources/TestData/TestOutput";
     ;
     pathFile = temp.replace("/", fs).replace("\\", fs);
-
-    if (server.contains("ubuntu")) {
-      System.setProperty("webdriver.chrome.driver", chromeDriverUbuntu);
-    } else if (server.contains("win")) {
-      System.setProperty("webdriver.chrome.driver", chromeDriver);
-    } else {
-      System.setProperty("webdriver.chrome.driver", chromeDriverUbuntu);
-    }
 
     // Add the WebDriver proxy capability.
     DesiredCapabilities capabilities = DesiredCapabilities.chrome();
@@ -172,20 +154,14 @@ public class Driver {
   }
 
   /**
-   * Init IE driver
+   * Init IE seleniumWebDriver
    */
   public WebDriver initIEDriver() {
-    info("Init IE driver");
-    System.setProperty("webdriver.ie.driver", ieDriver);
+    info("Init IE seleniumWebDriver");
     DesiredCapabilities capabilitiesIE = DesiredCapabilities.internetExplorer();
     capabilitiesIE.setCapability("ignoreProtectedModeSettings", true);
-    if ("true".equals(nativeEvent)) {
-      info("Set nativeEvent is TRUE");
-      capabilitiesIE.setCapability("nativeEvents", true);
-    } else {
-      info("Set nativeEvent is FALSE");
-      capabilitiesIE.setCapability("nativeEvents", false);
-    }
+    info("Set nativeEvent is FALSE");
+    capabilitiesIE.setCapability("nativeEvents", false);
     capabilitiesIE.setCapability("javascriptEnabled", true);
     capabilitiesIE.setCapability("requireWindowFocus", true);
     capabilitiesIE.setCapability("enablePersistentHover", false);
@@ -197,16 +173,11 @@ public class Driver {
   }
 
   /**
-   * Init FF driver
+   * Init FF seleniumWebDriver
    */
   public WebDriver initFFDriver() {
     String pathFile = "";
-    if ("win".equals(server)) {
-      pathFile = System.getProperty("user.dir") + "\\src\\main\\resources\\TestData\\TestOutput";
-    } else {
-      pathFile = System.getProperty("user.dir") + "/src/main/resources/TestData/TestOutput";
-    }
-    info("Init FF driver");
+    info("Init FF seleniumWebDriver");
     FirefoxProfile profile = new FirefoxProfile();
     profile.setPreference("plugins.hide_infobar_for_missing_plugin", true);
     profile.setPreference("dom.max_script_run_time", 0);
@@ -232,6 +203,47 @@ public class Driver {
     profile.setPreference("browser.helperApps.alwaysAsk.force", false);
     return new FirefoxDriver(profile);
   }
+
+  /**
+   * function set seleniumWebDriver to auto open new window when click link
+   */
+  public WebDriver getDriverAutoOpenWindow(){
+    FirefoxProfile fp = new FirefoxProfile();
+    fp.setPreference("browser.link.open_newwindow.restriction", 2);
+    return new FirefoxDriver(fp);
+  }
+
+  /**
+   * set language
+   * @param locale
+   */
+  public WebDriver getDriverSetLanguage(String locale){
+    FirefoxProfile profile = new FirefoxProfile();
+    profile.setPreference("intl.accept_languages", locale);
+    return new FirefoxDriver(profile);
+  }
+
+  /**
+   * setPreferenceRunTime
+   */
+  public void setPreferenceRunTime(){
+    FirefoxProfile fp = new FirefoxProfile();
+    fp.setPreference("dom.max_script_run_time", 30);
+  }
+
+
+  public String getBaseUrl() {
+    return baseUrl;
+  }
+
+  public String getServer() {
+    return server;
+  }
+
+  public String getBrowser() {
+    return browser;
+  }
+
 }
 
 

@@ -1,70 +1,43 @@
 package org.exoplatform.platform.ui.automation.test.commons.selenium;
 
-import static org.exoplatform.platform.ui.automation.test.config.Logger.info;
 import static org.exoplatform.platform.ui.automation.test.config.Logger.debug;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
-import org.exoplatform.platform.ui.automation.test.commons.selenium.testbase.DateTestBase;
-import org.exoplatform.platform.ui.automation.test.commons.selenium.testbase.DefaultDataTestBase;
-import org.exoplatform.platform.ui.automation.test.commons.selenium.testbase.LocatorTestBase;
-import org.exoplatform.platform.ui.automation.test.commons.selenium.testbase.ManageFileTestBase;
+import org.exoplatform.platform.ui.automation.test.commons.selenium.testbase.*;
 import org.exoplatform.platform.ui.automation.test.config.Driver;
-import org.junit.Assert;
-import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
-import org.openqa.selenium.ElementNotVisibleException;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
-import org.openqa.selenium.NoAlertPresentException;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.StaleElementReferenceException;
-import org.openqa.selenium.UnhandledAlertException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.ui.Select;
-
 
 public class TestBase {
 
   /** REFACTORING: Use delegate to new classes  */
-  private final ManageFileTestBase manageFileTestBase = new ManageFileTestBase(this);
-  private final DateTestBase       dateTestBase       = new DateTestBase(this);
+  private final ManageFileTestBase   manageFileTestBase   = new ManageFileTestBase(this);
+  private final DateTestBase         dateTestBase         = new DateTestBase(this);
+  private final ElementEventTestBase elementEventTestBase = new ElementEventTestBase(this);
+  private final TermsAndConditionsTestBase termsAndConditionsTestBase = new TermsAndConditionsTestBase(this);
 
-  public        WebDriver          driver             = new Driver().createWebDriver();
-	public WebDriver newDriver;
+  private final Driver driver = new Driver();
+  private WebDriver seleniumDriver = driver.createSeleniumWebDriver();
+	public WebDriver newSeleniumDriver;
 	public Boolean isDriver = true;
 
-	protected int DEFAULT_TIMEOUT = 30000; //milliseconds = 30 seconds
-	protected int WAIT_INTERVAL = 1000; //milliseconds
-	public int loopCount = 0;
+  protected int DEFAULT_TIMEOUT = 30000; //milliseconds = 30 seconds
+
+  public int loopCount = 0;
 	protected boolean ieFlag;
 	protected boolean chromeFlag;
 
 	protected String plfVersion = "";
 	public final int ACTION_REPEAT = 5;
-	public static boolean firstTimeLogin = false;
-	public Actions action;
 
-	//Driver path
-	public String uploadfile= manageFileTestBase.getAbsoluteFilePath("TestData\\attachFile.exe");
-	public String downloadfile= manageFileTestBase.getAbsoluteFilePath("TestData\\downloadIE9.exe");
-	public String ieDriver= manageFileTestBase.getAbsoluteFilePath("TestData\\IEDriverServer.exe");
-	public String chromeDriver= manageFileTestBase.getAbsoluteFilePath("TestData\\chromedriver.exe");
-	public String chromeDriverUbuntu= manageFileTestBase.getAbsoluteFilePath("TestData\\chromedriver");
+  public Actions action;
 
 	/*========System Property====================*/
-	public static String baseUrl;
-	public static String browser;
-	public static String server;
-
 	protected Boolean isRandom;
 	protected Boolean isUseFile;
 
@@ -80,9 +53,18 @@ public class TestBase {
 
 	protected String defaultSheet;
 
-  protected String nativeEvent;
+  public String nativeEvent;
 
 	protected static String ssoType;
+
+  /**
+   *
+   * define language
+   *
+   */
+  public enum Language{
+    en, fr, vi, lo;
+  }
 
 	/**
 	 * Get System Property
@@ -105,9 +87,6 @@ public class TestBase {
 		if (ssoType==null) ssoType = DefaultDataTestBase.DEFAULT_SSOTYPE;
 
 		if (nativeEvent==null) nativeEvent = DefaultDataTestBase.DEFAULT_NATIVE_EVENT;
-		if (browser==null) browser = DefaultDataTestBase.DEFAULT_BROWSER;
-		if (baseUrl==null) baseUrl = DefaultDataTestBase.DEFAULT_BASEURL;
-		if (server==null) server = DefaultDataTestBase.DEFAULT_SERVER;
 
 		if (isRandom==null) isRandom = DefaultDataTestBase.DEFAULT_ISRANDOM;
 		if (isUseFile==null) isUseFile = DefaultDataTestBase.DEFAULT_ISUSEFILE;
@@ -126,97 +105,52 @@ public class TestBase {
 
 	}
 
-	/**
-	 * Create new first account
-	 */
-	public void accountSetupWithoutGreeting(){
-		click(LocatorTestBase.ELEMENT_INPUT_USERNAME);
-		type(LocatorTestBase.ELEMENT_INPUT_USERNAME, "fqa", true);
-		type(LocatorTestBase.ELEMENT_FIRSTNAME_ACCOUNT, "FQA", true);
-		type(LocatorTestBase.ELEMENT_LASTNAME_ACCOUNT, "VN", true);
-		type(LocatorTestBase.ELEMENT_EMAIL_ACCOUNT, "fqa@exoplatform.com", true);
-		type(LocatorTestBase.ELEMENT_INPUT_PASSWORD, "gtngtn", true);
-		type(LocatorTestBase.ELEMENT_CONFIRM_PASS_ACCOUNT, "gtngtn", true);
-		type(LocatorTestBase.ELEMENT_ROOT_PASS_ACCOUNT, "gtngtn", true);
-		type(LocatorTestBase.ELEMENT_ROOT_CONFIRM_PASS_ACCOUNT, "gtngtn", true);
-		//click(LocatorTestBase.ELEMENT_SUBMIT_BUTTON);
-		clickByJavascript(LocatorTestBase.ELEMENT_SUBMIT_BUTTON, 2);
-		waitForTextNotPresent("Create your account");
-	}
+  /**
+   * change language of browser
+   *
+   * @param language English: "en"
+   *                 French: "fr"
+   */
+  public void initFFBrowserWithSetLanguageBrowser(String language) {
+    seleniumDriver = driver.initFFBrowserWithSetLanguageBrowser(language);
+    action = new Actions(seleniumDriver);
+  }
 
-	/**
-	 * Account setup
-	 */
-	public void accountSetup(){
-		accountSetupWithoutGreeting();
-		click(LocatorTestBase.ELEMENT_START_BUTTON,0,true);
-		waitForAndGetElement(LocatorTestBase.ELEMENT_ACCOUNT_NAME_LINK);
-	}
+  /**
+   * init browser
+   *
+   * @param opParams
+   */
+  public void initSeleniumTest(Object... opParams) {
+    initSeleniumTestWithOutTermAndCondition();
+    seleniumDriver.manage().window().maximize();
+    seleniumDriver.navigate().refresh();
+    termsAndConditionsTestBase.termsAndConditions(opParams);
+  }
 
-	/**
-	 * Get element
-	 * @param locator
-	 * @param opParams
-	 * @return an element
-	 */
-	public WebElement getElement(Object locator, Object... opParams) {
-		By by = locator instanceof By ? (By)locator : By.xpath(locator.toString());
-		WebDriver wDriver;
-		if(isDriver)
-			wDriver = (WebDriver) (opParams.length > 0 ? opParams[0]: driver);
-		else
-			wDriver = (WebDriver) (opParams.length > 0 ? opParams[0]: newDriver);
-		WebElement elem = null;
-		try {
-			elem = wDriver.findElement(by);
-		} catch (NoSuchElementException e) {
+  public void initSeleniumTestWithOutTermAndCondition(Object... opParams) {
+    final WebDriver wd = driver.initDriver();
+    chromeFlag = driver.isChromeDriver(wd);
+    ieFlag = driver.isIEDriver(wd);
+    action = new Actions(wd);
+  }
 
-		}
-		return elem;
-	}
+  /**
+   * Start new seleniumWebDriver without cache
+   */
+  public void startNewDriver() {
+    seleniumDriver = driver.startNewDriver();
+  }
 
-	/**
-	 * get an element
-	 * @param locator
-	 * @param opParams
-	 * @return element
-	 */
-	public WebElement getDisplayedElement(Object locator, Object... opParams) {
-		By by = locator instanceof By ? (By)locator : By.xpath(locator.toString());
-		WebDriver wDriver;
-		if(isDriver)
-			wDriver = (WebDriver) (opParams.length > 0 ? opParams[0]: driver);
-		else
-			wDriver = (WebDriver) (opParams.length > 0 ? opParams[0]: newDriver);
-		WebElement e = null;
-		try {
-			if(by != null)
-				e = wDriver.findElement(by);
-			if (e != null){
-				if (isDisplay(by)) return e;
-			}
-		} catch (NoSuchElementException ex) {
-		}catch(StaleElementReferenceException ex)
-		{
-			checkCycling(ex, 10);
-			Utils.pause(WAIT_INTERVAL);
-			getDisplayedElement(locator);
-		}
-		finally{
-			loopCount=0;
-		}
-		return null;
-	}
-
-	/**
+  /**
 	 * verify element exists or not
 	 * @param locator
 	 * @return true if element exists
 	 * 			false if element doesn't exist
 	 */
 	public boolean isElementPresent(Object locator) {
-		return getElement(locator) != null;
-	}
+    return elementEventTestBase.isElementPresent(locator);
+  }
 
 	/**
 	 * verify element exists or not
@@ -225,8 +159,8 @@ public class TestBase {
 	 * 			false if element exist
 	 */
 	public boolean isElementNotPresent(Object locator) {
-		return !isElementPresent(locator);
-	}
+    return elementEventTestBase.isElementNotPresent(locator);
+  }
 
 	/**
 	 * Get element
@@ -240,29 +174,8 @@ public class TestBase {
 	 * @return an element
 	 */
 	public WebElement waitForAndGetElement(Object locator, Object... opParams) {
-		WebElement elem = null;
-		int timeout = (Integer) (opParams.length>0 ? opParams[0] : DEFAULT_TIMEOUT);
-		int isAssert = (Integer) (opParams.length > 1 ? opParams[1]: 1);
-		int notDisplayE = (Integer) (opParams.length > 2 ? opParams[2]: 0);
-		WebDriver wDriver;
-		if(isDriver)
-			wDriver = (WebDriver) (opParams.length > 3 ? opParams[3]: driver);
-		else
-			wDriver = (WebDriver) (opParams.length > 3 ? opParams[3]: newDriver);
-		for (int tick = 0; tick < timeout/WAIT_INTERVAL; tick++) {
-			if (notDisplayE == 2){
-				elem = getElement(locator,wDriver);
-			}else{
-				elem = getDisplayedElement(locator,wDriver);
-			}
-			if (null != elem) return elem;
-			Utils.pause(WAIT_INTERVAL);
-		}
-		if (isAssert == 1)
-			assert false: ("Timeout after " + timeout + "ms waiting for element present: " + locator);
-		info("cannot find element after " + timeout/1000 + "s.");
-		return null;
-	}
+    return elementEventTestBase.waitForAndGetElement(locator, opParams);
+  }
 
 	/**
 	 * Get element
@@ -276,27 +189,8 @@ public class TestBase {
 	 * @return	an element
 	 */
 	public WebElement waitForElementNotPresent(Object locator, int... opParams) {
-		WebElement elem = null;
-		int timeout = opParams.length > 0 ? opParams[0] : DEFAULT_TIMEOUT;
-		int isAssert = opParams.length > 1 ? opParams[1]: 1;
-		int notDisplayE = opParams.length > 2 ? opParams[2]: 0;
-
-		for (int tick = 0; tick < timeout/WAIT_INTERVAL; tick++) {
-			if (notDisplayE == 2){
-				elem = getElement(locator);
-				//elem = getDisplayedElement(locator);
-			}else{
-				elem = getDisplayedElement(locator);
-			}
-			if (null == elem) return null;
-			Utils.pause(WAIT_INTERVAL);
-		}
-
-		if (isAssert == 1)
-			assert false: ("Timeout after " + timeout + "ms waiting for element not present: " + locator);
-		info("Element doesn't disappear after " + timeout/1000 + "s.");
-		return elem;
-	}
+    return elementEventTestBase.waitForElementNotPresent(locator, opParams);
+  }
 
 	/**
 	 *
@@ -306,11 +200,8 @@ public class TestBase {
 	 * 			false if test is not exist
 	 */
 	public boolean isTextPresent(String text, int...opts) {
-		int display = opts.length > 0 ? opts[0] : 1;
-		Utils.pause(500);
-		String allVisibleTexts = getText(By.xpath("//body"),display);
-		return allVisibleTexts.contains(text);
-	}
+    return elementEventTestBase.isTextPresent(text, opts);
+  }
 
 	/**
 	 * get text of element
@@ -319,19 +210,8 @@ public class TestBase {
 	 * @return text of element
 	 */
 	public String getText(Object locator,int...opts) {
-		WebElement element = null;
-		int display = opts.length > 0 ? opts[0] : 1;
-		try {
-			element = waitForAndGetElement(locator,DEFAULT_TIMEOUT,1,display);
-			return element.getText();
-		} catch (StaleElementReferenceException e) {
-			checkCycling(e, DEFAULT_TIMEOUT/WAIT_INTERVAL);
-			Utils.pause(WAIT_INTERVAL);
-			return getText(locator);
-		} finally {
-			loopCount = 0;
-		}
-	}
+    return elementEventTestBase.getText(locator, opts);
+  }
 
 	/**
 	 * get list of element
@@ -339,16 +219,8 @@ public class TestBase {
 	 * @return list of elements
 	 */
 	public List<WebElement> getElements(String xpath) {
-		try {
-			return driver.findElements(By.xpath(xpath));
-		} catch (StaleElementReferenceException e) {
-			checkCycling(e, 5);
-			Utils.pause(1000);
-			return getElements(xpath);
-		} finally {
-			loopCount = 0;
-		}
-	}
+    return elementEventTestBase.getElements(xpath);
+  }
 
 	/**
 	 * verify text exists or noet
@@ -357,8 +229,8 @@ public class TestBase {
 	 * 			false if text doesn't exits
 	 */
 	public boolean isTextNotPresent(String text) {
-		return !isTextPresent(text);
-	}
+    return elementEventTestBase.isTextNotPresent(text);
+  }
 
 	/**
 	 * drag and drop element
@@ -366,79 +238,24 @@ public class TestBase {
 	 * @param targetLocator
 	 */
 	public void dragAndDropToObject(Object sourceLocator, Object targetLocator) {
-		info("--Drag and drop to object--");
-		Actions action = new Actions(driver);
-		try {
-			WebElement source = waitForAndGetElement(sourceLocator);
-			WebElement target = waitForAndGetElement(targetLocator);
-
-			action.dragAndDrop(source, target).build().perform();
-		} catch (StaleElementReferenceException e) {
-			checkCycling(e, DEFAULT_TIMEOUT/WAIT_INTERVAL);
-			Utils.pause(WAIT_INTERVAL);
-			dragAndDropToObject(sourceLocator, targetLocator);
-		}catch (UnhandledAlertException e) {
-			try {
-				Alert alert = driver.switchTo().alert();
-				alert.accept();
-				switchToParentWindow();
-			} catch (NoAlertPresentException eNoAlert) {
-			}
-		}
-
-		finally {
-			loopCount = 0;
-		}
-		Utils.pause(1000);
-	}
+    elementEventTestBase.dragAndDropToObject(sourceLocator, targetLocator);
+  }
 	/**
 	 * Drag an object
 	 * @param sourceLocator
 	 * @param targetLocator
 	 */
 	public void dragObject(String sourceLocator, String targetLocator){
-		info("--Drag an object--");
-		Actions action = new Actions(this.driver);
-		WebElement source = waitForAndGetElement(sourceLocator);
-		WebElement target = waitForAndGetElement(targetLocator);
-
-		try {
-			action.clickAndHold(source).moveToElement(target).release().build().perform();
-		} catch (StaleElementReferenceException e) {
-			checkCycling(e, DEFAULT_TIMEOUT/WAIT_INTERVAL);
-			Utils.pause(WAIT_INTERVAL);
-			action.clickAndHold(source).moveToElement(target).release().build().perform();
-		}catch (UnhandledAlertException e) {
-			try {
-				Alert alert = driver.switchTo().alert();
-				alert.accept();
-				switchToParentWindow();
-			} catch (NoAlertPresentException eNoAlert) {
-			}
-		}
-
-		finally {
-			loopCount = 0;
-		}
-		Utils.pause(1000);
-	}
+    elementEventTestBase.dragObject(sourceLocator, targetLocator);
+  }
 	/**
 	 * Click by using javascript
 	 * @param locator
 	 * @param opParams
 	 */
 	public void clickByJavascript(Object locator, Object... opParams){
-		int notDisplay = (Integer) (opParams.length > 0 ? opParams[0]: 0);
-		WebElement e = null;
-		if(locator instanceof WebElement){
-			e=(WebElement) locator;
-		}
-		else{
-			info("wait and get element");
-			e = waitForAndGetElement(locator,DEFAULT_TIMEOUT, 1, notDisplay);
-		}
-		((JavascriptExecutor)driver).executeScript("arguments[0].click();", e);
-	}
+    elementEventTestBase.clickByJavascript(locator, opParams);
+  }
 	/**
 	 * Type by java script
 	 * @param locatorById
@@ -446,11 +263,8 @@ public class TestBase {
 	 * @param opParams
 	 */
 	public void typeByJavascript(Object locatorById, String value,Object... opParams){
-		Utils.pause(3000);
-		((JavascriptExecutor)driver).executeScript("document.getElementById('"+locatorById+"').value='"+value+"'");
-	}
-
-
+    elementEventTestBase.typeByJavascript(locatorById, value, opParams);
+  }
 
 	/**
 	 * click action
@@ -458,57 +272,14 @@ public class TestBase {
 	 * @param opParams
 	 */
 	public void click(Object locator, Object... opParams) {
-		int notDisplay = (Integer) (opParams.length > 0 ? opParams[0]: 0);
-		WebElement element = null;
-		Actions actions = new Actions(driver);
-		try {
-			if(browser.contains("iexplorer")||browser.contains("chrome")){
-				info("use javasript to click");
-				clickByJavascript(locator, notDisplay);
-			}
-			else{
-				if (!locator.getClass().getName().contains("WebElement")) {
-					info("wait and get elements");
-					element = waitForAndGetElement(locator, DEFAULT_TIMEOUT, 1, notDisplay);
-				}
-				else{
-					element=(WebElement) locator;
-				}
-				if (browser.contains("chrome")) {
-					scrollToElement(element, driver);
-				}
-				if(element.isEnabled()){
-					info("click element");
-					actions.click(element).perform();
-				}
-				else {
-					info("Element is not enabled");
-					info("click element by javascript");
-					clickByJavascript(locator, notDisplay);
-				}
-			}
-		} catch (StaleElementReferenceException e) {
-			checkCycling(e, DEFAULT_TIMEOUT/WAIT_INTERVAL);
-			Utils.pause(WAIT_INTERVAL);
-			info("click element by javascript");
-			clickByJavascript(locator, notDisplay);
-		} catch (ElementNotVisibleException e) {
-			checkCycling(e, DEFAULT_TIMEOUT/WAIT_INTERVAL);
-			Utils.pause(WAIT_INTERVAL);
-			info("click element by javascript");
-			clickByJavascript(locator, notDisplay);
-		} finally {
-			loopCount = 0;
-		}
-		Utils.pause(1000);
-	}
-
+    elementEventTestBase.click(locator, opParams);
+  }
 
 	/**
 	 * clear cache
 	 */
 	public void clearCache(){
-		Actions actionObject = new Actions(driver);
+		Actions actionObject = new Actions(seleniumDriver);
 		try{
 			actionObject.sendKeys(Keys.CONTROL).sendKeys(Keys.F5).build().perform();
 		} catch(WebDriverException e){
@@ -523,36 +294,8 @@ public class TestBase {
 	 * @param opParams
 	 */
 	public void check(Object locator, int... opParams) {
-		int notDisplayE = opParams.length > 0 ? opParams[0]: 0;
-		Actions actions = new Actions(driver);
-		try {
-			WebElement element = waitForAndGetElement(locator, DEFAULT_TIMEOUT, 1, notDisplayE);
-			if (browser.contains("chrome")) {
-				scrollToElement(element, driver);
-			}
-			if (!element.isSelected()) {
-				actions.click(element).perform();
-				if(waitForAndGetElement(locator, DEFAULT_TIMEOUT, 1, notDisplayE).getAttribute("type")!=null && waitForAndGetElement(locator, DEFAULT_TIMEOUT, 1, notDisplayE).getAttribute("type")!="checkbox"){
-					info("Checkbox is not checked");
-					if (!element.isSelected()) {
-						info("check by javascript");
-						waitForAndGetElement(locator, DEFAULT_TIMEOUT, 1, notDisplayE);
-						//mouseOver(locator, true);
-						clickByJavascript(locator, notDisplayE);
-					}
-				}
-			} else {
-				info("Element " + locator + " is already checked.");
-			}
-		} catch (StaleElementReferenceException e) {
-			checkCycling(e, DEFAULT_TIMEOUT/WAIT_INTERVAL);
-			Utils.pause(WAIT_INTERVAL);
-			check(locator, opParams);
-		} finally {
-			loopCount = 0;
-		}
-		Utils.pause(2000);
-	}
+    elementEventTestBase.check(locator, opParams);
+  }
 
 	/**
 	 * get value attribute
@@ -560,30 +303,17 @@ public class TestBase {
 	 * @return value of element
 	 */
 	public String getValue(Object locator) {
-		try {
-			return waitForAndGetElement(locator).getAttribute("value");
-		} catch (StaleElementReferenceException e) {
-			checkCycling(e, DEFAULT_TIMEOUT/WAIT_INTERVAL);
-			Utils.pause(WAIT_INTERVAL);
-			return getValue(locator);
-		} finally {
-			loopCount = 0;
-		}
-	}
+    return elementEventTestBase.getValue(locator);
+  }
 
 	/**
 	 * Mouse hover by Javascript
 	 * @param locator
 	 * @param opParams
 	 */
-	public void mouseHoverByJavaScript(Object locator, Object...opParams)
-	{
-		int notDisplay = (Integer) (opParams.length > 0 ? opParams[0]: 0);
-		WebElement targetElement;
-		String mouseOverScript = "if(document.createEvent){var evObj = document.createEvent('MouseEvents');evObj.initEvent('mouseover', true, false); arguments[0].dispatchEvent(evObj);} else if(document.createEventObject) { arguments[0].fireEvent('onmouseover');}";
-		targetElement = waitForAndGetElement(locator,5000, 1, notDisplay);
-		((JavascriptExecutor)driver).executeScript(mouseOverScript, targetElement);
-	}
+	public void mouseHoverByJavaScript(Object locator, Object...opParams) {
+    elementEventTestBase.mouseHoverByJavaScript(locator, opParams);
+  }
 
 	/**
 	 * mouse over action
@@ -592,57 +322,16 @@ public class TestBase {
 	 * @param opParams
 	 */
 	public void mouseOver(Object locator, boolean safeToSERE, Object...opParams) {
-		WebElement element;
-		Actions actions = new Actions(driver);
-		int notDisplay = (Integer) (opParams.length > 0 ? opParams[0]: 0);
-		try {
-			if (safeToSERE) {
-				for (int i = 1; i < ACTION_REPEAT; i++){
-					if (!locator.getClass().getName().contains("WebElement")) {
-						element = waitForAndGetElement(locator, 5000, 0, notDisplay);
-					}
-					else{
-						element=(WebElement) locator;
-					}
-					if (element == null){
-						Utils.pause(WAIT_INTERVAL);
-					} else {
-						actions.moveToElement(element).perform();
-						break;
-					}
-				}
-			} else {
-				if (!locator.getClass().getName().contains("WebElement")) {
-					element = waitForAndGetElement(locator);
-				}
-				else{
-					element=(WebElement) locator;
-				}
-				actions.moveToElement(element).perform();
-			}
-		} catch (StaleElementReferenceException e) {
-			checkCycling(e, DEFAULT_TIMEOUT/WAIT_INTERVAL);
-			Utils.pause(WAIT_INTERVAL);
-			mouseOver(locator, safeToSERE);
-		} finally {
-			loopCount = 0;
-		}
-	}
+    elementEventTestBase.mouseOver(locator, safeToSERE, opParams);
+  }
 
 	/**
 	 * mouse over and clic
 	 * @param locator
 	 */
 	public void mouseOverAndClick(Object locator) {
-		WebElement element;
-		Actions actions = new Actions(driver);
-		if (ieFlag) {
-			element = getDisplayedElement(locator);
-		} else {
-			element = waitForAndGetElement(locator);
-		}
-		actions.moveToElement(element).click(element).build().perform();
-	}
+    elementEventTestBase.mouseOverAndClick(locator);
+  }
 
 	/**
 	 * wait for text present
@@ -650,18 +339,8 @@ public class TestBase {
 	 * @param opts
 	 */
 	public void waitForTextPresent(String text, int...opts) {
-		int waitTime = opts.length > 0 ? opts[0] : DEFAULT_TIMEOUT;
-		int display = opts.length > 1 ? opts[1] : 1;
-		for (int second = 0;; second++) {
-			if (second >= waitTime/WAIT_INTERVAL) {
-				Assert.fail("Timeout at waitForTextPresent: " + text);
-			}
-			if (isTextPresent(text,display)) {
-				break;
-			}
-			Utils.pause(WAIT_INTERVAL);
-		}
-	}
+    elementEventTestBase.waitForTextPresent(text, opts);
+  }
 
 	/**
 	 * wait for text not present
@@ -669,17 +348,8 @@ public class TestBase {
 	 * @param wait
 	 */
 	public void waitForTextNotPresent(String text,int...wait) {
-		int waitTime = wait.length > 0 ? wait[0] : DEFAULT_TIMEOUT;
-		for (int second = 0;; second++) {
-			if (second >= waitTime/WAIT_INTERVAL) {
-				Assert.fail("Timeout at waitForTextNotPresent: " + text);
-			}
-			if (isTextNotPresent(text)) {
-				break;
-			}
-			Utils.pause(WAIT_INTERVAL);
-		}
-	}
+    elementEventTestBase.waitForTextNotPresent(text, wait);
+  }
 
 	/**
 	 * wait for msg
@@ -687,10 +357,8 @@ public class TestBase {
 	 * @param wait
 	 */
 	public void waitForMessage(String message,int...wait) {
-		int waitTime = wait.length > 0 ? wait[0] : DEFAULT_TIMEOUT;
-		Utils.pause(500);
-		waitForAndGetElement("//*[contains(text(),'"+message+"')]",waitTime);
-	}
+    elementEventTestBase.waitForMessage(message, wait);
+  }
 
 	/**
 	 * type to textbox
@@ -700,36 +368,8 @@ public class TestBase {
 	 * @param opParams
 	 */
 	public void type(Object locator, String value, boolean validate, Object...opParams) {
-		int notDisplay = (Integer) (opParams.length > 0 ? opParams[0]: 0);
-		try {
-			for (int loop = 1;; loop++) {
-				if (loop >= ACTION_REPEAT) {
-					Assert.fail("Timeout at type: " + value + " into " + locator);
-				}
-				WebElement element = waitForAndGetElement(locator, DEFAULT_TIMEOUT, 1, notDisplay);
-				if (element != null){
-					if (validate) element.clear();
-					element.click();
-					element.sendKeys(value);
-					if (!validate || value.equals(getValue(locator))) {
-						break;
-					}
-				}
-				info("Repeat action..." + loop + "time(s)");
-				Utils.pause(WAIT_INTERVAL);
-			}
-		} catch (StaleElementReferenceException e) {
-			checkCycling(e, DEFAULT_TIMEOUT/WAIT_INTERVAL);
-			Utils.pause(WAIT_INTERVAL);
-			type(locator, value, validate, opParams);
-		} catch (ElementNotVisibleException e) {
-			checkCycling(e, DEFAULT_TIMEOUT/WAIT_INTERVAL);
-			Utils.pause(WAIT_INTERVAL);
-			type(locator, value, validate, opParams);
-		} finally {
-			loopCount = 0;
-		}
-	}
+    elementEventTestBase.type(locator, value, validate, opParams);
+  }
 
 	/**
 	 * Select option from combo box
@@ -738,28 +378,8 @@ public class TestBase {
 	 * @param display
 	 */
 	public void select(Object locator, String option, int...display) {
-		int isDisplay = display.length > 0 ? display[0] : 1;
-		try {
-			for (int second = 0;; second++) {
-				if (second >= DEFAULT_TIMEOUT/WAIT_INTERVAL) {
-					Assert.fail("Timeout at select: " + option + " into " + locator);
-				}
-				Select select = new Select(waitForAndGetElement(locator,DEFAULT_TIMEOUT,1,isDisplay));
-				select.selectByVisibleText(option);
-				if (option.equals(select.getFirstSelectedOption().getText())) {
-					break;
-				}
-				Utils.pause(WAIT_INTERVAL);
-			}
-		} catch (StaleElementReferenceException e) {
-			checkCycling(e, DEFAULT_TIMEOUT/WAIT_INTERVAL);
-			Utils.pause(WAIT_INTERVAL);
-			select(locator, option);
-		} finally {
-			loopCount = 0;
-		}
-		Utils.pause(500);
-	}
+    elementEventTestBase.select(locator, option, display);
+  }
 
 	/**
 	 * un-check a checked-box
@@ -767,30 +387,8 @@ public class TestBase {
 	 * @param opParams
 	 */
 	public void uncheck(Object locator, int... opParams) {
-		int notDisplayE = opParams.length > 0 ? opParams[0]: 0;
-		Actions actions = new Actions(driver);
-		try {
-			WebElement element = waitForAndGetElement(locator, DEFAULT_TIMEOUT, 1, notDisplayE);
-
-			if (element.isSelected()) {
-				actions.click(element).perform();
-				if (element.isSelected()) {
-					info("uncheck by javascript");
-					waitForAndGetElement(locator, DEFAULT_TIMEOUT, 1, notDisplayE);
-					clickByJavascript(locator, notDisplayE);
-				}
-			} else {
-				info("Element " + locator + " is already unchecked.");
-			}
-		} catch (StaleElementReferenceException e) {
-			checkCycling(e, 5);
-			Utils.pause(1000);
-			uncheck(locator, opParams);
-		} finally {
-			loopCount = 0;
-		}
-		Utils.pause(2000);
-	}
+    elementEventTestBase.uncheck(locator, opParams);
+  }
 
 	/**
 	 * rightClickOnElement
@@ -798,48 +396,16 @@ public class TestBase {
 	 * @param opParams
 	 */
 	public void rightClickOnElement(Object locator, int...opParams) {
-		int display = opParams.length > 0 ? opParams[0]: 0;
-		Actions actions = new Actions(driver);
-		Utils.pause(500);
-		try {
-			WebElement element = waitForAndGetElement(locator,DEFAULT_TIMEOUT,1,display);
-			actions.contextClick(element).perform();
-		} catch (StaleElementReferenceException e) {
-			checkCycling(e, DEFAULT_TIMEOUT/WAIT_INTERVAL);
-			Utils.pause(WAIT_INTERVAL);
-			rightClickOnElement(locator);
-		} catch (ElementNotVisibleException e) {
-			checkCycling(e, DEFAULT_TIMEOUT/WAIT_INTERVAL);
-			Utils.pause(WAIT_INTERVAL);
-			click(locator);
-		} finally {
-			loopCount = 0;
-		}
-	}
+    elementEventTestBase.rightClickOnElement(locator, opParams);
+  }
 
 	/**
 	 * doubleClickOnElement
 	 * @param locator
 	 */
 	public void doubleClickOnElement(Object locator) {
-		Actions actions = new Actions(driver);
-		WebElement element;
-		try {
-			if (!locator.getClass().getName().contains("WebElement")) {
-				element = waitForAndGetElement(locator);
-			}
-			else{
-				element=(WebElement) locator;
-			}
-			actions.doubleClick(element).perform();
-		} catch (StaleElementReferenceException e) {
-			checkCycling(e, 5);
-			Utils.pause(1000);
-			doubleClickOnElement(locator);
-		} finally {
-			loopCount = 0;
-		}
-	}
+    elementEventTestBase.doubleClickOnElement(locator);
+  }
 
 	/**
 	 * checkCycling
@@ -847,37 +413,15 @@ public class TestBase {
 	 * @param loopCountAllowed
 	 */
 	public void checkCycling(Exception e, int loopCountAllowed) {
-		info("Exception:" + e.getClass().getName());
-		if (loopCount > loopCountAllowed) {
-			Assert.fail("Cycled: " + e.getMessage());
-		}
-		info("Repeat... " + loopCount + "time(s)");
-		loopCount++;
-	}
+    elementEventTestBase.checkCycling(e, loopCountAllowed);
+  }
 
 	/**
 	 * function to switch to parent windows
 	 */
 	public void switchToParentWindow (){
-		try
-		{
-			Set<String> availableWindows = driver.getWindowHandles();
-			String WindowIdParent= null;
-			int counter = 1;
-			for (String windowId : availableWindows) {
-				if (counter == 1){
-					WindowIdParent = windowId;
-				}
-				counter++;
-			}
-			driver.switchTo().window(WindowIdParent);
-			Utils.pause(1000);
-		}
-		catch (WebDriverException e)
-		{
-			e.printStackTrace();
-		}
-	}
+    elementEventTestBase.switchToParentWindow();
+  }
 
 	/**
 	 * check element displays or net
@@ -886,43 +430,17 @@ public class TestBase {
 	 * 			false if element doesn't display
 	 */
 	public boolean isDisplay(Object locator) {
-		boolean bool = false;
-		WebElement e = getElement(locator);
-		try{
-			if (e!=null)
-				bool = e.isDisplayed();
-		}catch(StaleElementReferenceException ex)
-		{
-			checkCycling(ex, 10);
-			Utils.pause(WAIT_INTERVAL);
-			isDisplay(locator);
-		}
-		finally{
-			loopCount=0;
-		}
-		return bool;
-	}
+    return elementEventTestBase.isDisplay(locator);
+  }
 
 	/**
-	 * function set driver to auto open new window when click link
+	 * function set seleniumDriver to auto open new window when click link
 	 */
 	public void getDriverAutoOpenWindow(){
-		FirefoxProfile fp = new FirefoxProfile();
-		fp.setPreference("browser.link.open_newwindow.restriction", 2);
-		driver = new FirefoxDriver(fp);
-		baseUrl = System.getProperty("baseUrl");
-		if (baseUrl==null) baseUrl = DefaultDataTestBase.DEFAULT_BASEURL;
-		action = new Actions(driver);
-		termsAndConditions();
-	}
+    WebDriver seleniumWebDriver = driver.getDriverAutoOpenWindow();
+    action = new Actions(seleniumWebDriver);
+    termsAndConditionsTestBase.termsAndConditions();
 
-  /**
-	 *
-	 * define language
-	 *
-	 */
-	public enum Language{
-		en, fr, vi, lo;
 	}
 
 	/**
@@ -930,14 +448,9 @@ public class TestBase {
 	 * @param language
 	 */
 	public void getDriverSetLanguage(Language language){
-		String locale = language.toString();
-		FirefoxProfile profile = new FirefoxProfile();
-		profile.setPreference("intl.accept_languages", locale);
-		driver = new FirefoxDriver(profile);
-		baseUrl = System.getProperty("baseUrl");
-		if (baseUrl==null) baseUrl = DefaultDataTestBase.DEFAULT_BASEURL;
-		action = new Actions(driver);
-		termsAndConditions();
+    WebDriver seleniumWebDriver = driver.getDriverSetLanguage(language.toString());
+    action = new Actions(seleniumWebDriver);
+    termsAndConditionsTestBase.termsAndConditions();
 	}
 
   /**
@@ -945,65 +458,15 @@ public class TestBase {
 	 * @param locator
 	 */
 	public void changeDisplayAttributeHTML(Object locator){
-		WebElement element = waitForAndGetElement(locator, DEFAULT_TIMEOUT, 1, 2);
-		((JavascriptExecutor)driver).executeScript("arguments[0].style.display = 'block';",element);
-	}
+    elementEventTestBase.changeDisplayAttributeHTML(locator);
+  }
 
 
 	/**
 	 * setPreferenceRunTime
 	 */
 	public void setPreferenceRunTime(){
-		FirefoxProfile fp = new FirefoxProfile();
-
-		fp.setPreference("dom.max_script_run_time", 30);
-	}
-
-
-
-	/**
-	 * get random string
-	 * @return random string
-	 */
-	public String getRandomString(){
-		char[] chars = "abcdefghijklmnopqrstuvwxyz".toCharArray();
-		StringBuilder sb = new StringBuilder();
-		Random random = new Random();
-		for (int i = 0; i < 6; i++) {
-			char c = chars[random.nextInt(chars.length)];
-			sb.append(c);
-		}
-		return sb.toString();
-	}
-
-	/**
-	 * get a list of random numbers
-	 * @return random numbers
-	 */
-	public String getRandomNumber() {
-		char[] chars = "0123456789".toCharArray();
-		StringBuilder sb = new StringBuilder();
-		Random random = new Random();
-		for (int i = 0; i < 6; i++) {
-			char c = chars[random.nextInt(chars.length)];
-			sb.append(c);
-		}
-		return sb.toString();
-	}
-	/**
-	 * Create a String list by size
-	 * @param name
-	 *             is the name of array's members
-	 * @param size
-	 * @return value
-	 */
-	public ArrayList<String> getListData(String name,int size){
-		ArrayList<String> array = new ArrayList<String>();
-		for(int i=1;i<size;i++){
-			String item = name+" "+String.valueOf(i);
-			array.add(item);
-		}
-		return array;
+    driver.setPreferenceRunTime();
 	}
 
 	/**
@@ -1014,22 +477,8 @@ public class TestBase {
 	 * @param value
 	 */
 	public void copyPasteString(By origin, By target, String value) {
-		WebElement element1 = driver.findElement(origin);
-		WebElement element2 = driver.findElement(target);
-
-		info("Type into the first locator");
-		element1.clear();
-		element1.click();
-		element1.sendKeys(value);
-
-		info("Copy from the first locator");
-		element1.sendKeys(Keys.chord(Keys.CONTROL, "a"));
-		element1.sendKeys(Keys.chord(Keys.CONTROL, "c"));
-
-		info("Paste to the second locator");
-		element2.click();
-		element2.sendKeys(Keys.chord(Keys.CONTROL, "v"));
-	}
+    elementEventTestBase.copyPasteString(origin, target, value);
+  }
 
   /**
 	 * @param object
@@ -1037,15 +486,8 @@ public class TestBase {
 	 *         = false: if there is scroll bar on element
 	 */
 	public boolean checkExitScrollBar(By object){
-		WebElement element = waitForAndGetElement(object);
-		String scrollHeight = String.valueOf(((JavascriptExecutor)driver).executeScript("return arguments[0].scrollHeight;", element));
-		String offsetHeight = String.valueOf(((JavascriptExecutor)driver).executeScript("return arguments[0].offsetHeight;", element));
-		info("scrollHeight: " + scrollHeight);
-		info("offsetHeight: " + offsetHeight);
-		int scroll = Integer.parseInt(scrollHeight);
-		int offset = Integer.parseInt(offsetHeight);
-		return scroll == offset;
-	}
+    return elementEventTestBase.checkExitScrollBar(object);
+  }
 
 	/**
 	 * function get an element from link text when cannot get by text in xpath
@@ -1053,17 +495,8 @@ public class TestBase {
 	 * @return an element from link text
 	 */
 	public WebElement getElementFromTextByJquery(String text){
-
-		JavascriptExecutor js = (JavascriptExecutor) driver;
-		Utils.pause(2000);
-		try{
-			WebElement web = (WebElement) js.executeScript("return $(\"a:contains('" + text + "')\").get(0);");
-			return web;
-		}catch(org.openqa.selenium.WebDriverException e){
-			WebElement web = (WebElement) js.executeScript("return $(\"a:contains('" + text + "')\").get(0);");
-			return web;
-		}
-	}
+    return elementEventTestBase.getElementFromTextByJquery(text);
+  }
 
 	/**
 	 * scrollBarToGetElement
@@ -1071,12 +504,8 @@ public class TestBase {
 	 * @param opParams
 	 */
 	public void scrollBarToGetElement(By object, int...opParams) {
-		int display = opParams.length > 0 ? opParams[0]: 0;
-		WebElement element = waitForAndGetElement(object,5000,1,display);
-		JavascriptExecutor jse;
-		jse = (JavascriptExecutor) driver;
-		jse.executeScript("arguments[0].scrollIntoView(true);", element);
-	}
+    elementEventTestBase.scrollBarToGetElement(object, opParams);
+  }
 
 	/**
 	 * inputDataToCKEditor
@@ -1084,70 +513,25 @@ public class TestBase {
 	 * @param data
 	 */
 	public void inputDataToCKEditor(By framelocator, String data){
-		info("input data to ckeditor");
-		Utils.pause(2000);
-		try {
-			WebElement inputsummary = null;
-			WebElement e = waitForAndGetElement(framelocator,DEFAULT_TIMEOUT,1,2);
-			driver.switchTo().frame(e);
-			inputsummary = driver.switchTo().activeElement();
-			inputsummary.click();
-			inputsummary.clear();
-			if ("iexplorer".equals(browser)){
-				if ("true".equals(nativeEvent)){
-					info("Set nativeEvent is TRUE");
-					((JavascriptExecutor) driver).executeScript("document.body.innerHTML='" + data + "' + document.body.innerHTML;");
-				}
-				else{
-					info("Set nativeEvent is FALSE");
-					//inputsummary.sendKeys(data);
-					((JavascriptExecutor) driver).executeScript("document.body.innerHTML='" + data + "' + document.body.innerHTML;");
-				}
-			} else {
-				((JavascriptExecutor) driver).executeScript("document.body.innerHTML='" + data + "' + document.body.innerHTML;");
-			}
-		} catch (StaleElementReferenceException e) {
-			checkCycling(e, DEFAULT_TIMEOUT/WAIT_INTERVAL);
-			Utils.pause(WAIT_INTERVAL);
-			driver.switchTo().defaultContent();
-			inputDataToCKEditor (framelocator, data);
-		} catch (ElementNotVisibleException e) {
-			checkCycling(e, DEFAULT_TIMEOUT/WAIT_INTERVAL);
-			Utils.pause(WAIT_INTERVAL);
-			driver.switchTo().defaultContent();
-			inputDataToCKEditor (framelocator,data);
-		}catch (WebDriverException e) {
-			checkCycling(e, DEFAULT_TIMEOUT/WAIT_INTERVAL);
-			Utils.pause(WAIT_INTERVAL);
-			driver.switchTo().defaultContent();
-			inputDataToCKEditor (framelocator,data);
-		}
-		switchToParentWindow();
-	}
+    elementEventTestBase.inputDataToCKEditor(framelocator, data);
+  }
 	/**
 	 * Press Enter key
 	 */
 	public void pressEnterKey(){
-		action.sendKeys(Keys.ENTER).perform();
-		action.release();
-	}
+    elementEventTestBase.pressEnterKey();
+  }
 	/**
 	 * Press End Key
 	 * @param driver
 	 */
 	public void pressEndKey(WebDriver driver){
-		info("Press End key");
-		action = new Actions(driver);
-		action.sendKeys(Keys.END).perform();
-		action.release();
-	}
+    elementEventTestBase.pressEndKey(driver);
+  }
 
 	public void pressHomeKey(WebDriver driver){
-		info("Press Home key");
-		action = new Actions(driver);
-		action.sendKeys(Keys.HOME).perform();
-		action.release();
-	}
+    elementEventTestBase.pressHomeKey(driver);
+  }
 
   /**
 	 * This function returns a absolute path from a relative path
@@ -1174,7 +558,6 @@ public class TestBase {
 	 * @return fileName
 	 */
 	public String getFileNameFromCurrentUrl(WebDriver driver, Object...params){
-
     return manageFileTestBase.getFileNameFromCurrentUrl(driver, params);
   }
 
@@ -1184,7 +567,7 @@ public class TestBase {
 	 * @param fileName
 	 */
 	public void attachFile(String pathFile, String fileName) {
-    manageFileTestBase.attachFile(pathFile, fileName, DEFAULT_TIMEOUT, driver);
+    manageFileTestBase.attachFile(pathFile, fileName, DEFAULT_TIMEOUT, seleniumDriver);
   }
 
 	/**
@@ -1210,7 +593,7 @@ public class TestBase {
 	 */
 	public void downloadFileUsingRobot(WebElement element) throws Exception {
 
-    // Get the focus on the element..don't use click since it stalls the driver
+    // Get the focus on the element..don't use click since it stalls the seleniumDriver
 
     //simulate pressing enter
 
@@ -1248,9 +631,6 @@ public class TestBase {
     manageFileTestBase.downloadFileUsingRobotViaURL();
   }
 
-
-
-
 	/**
 	 * uploadFileUsingRobot
 	 * @param fileLocation
@@ -1269,50 +649,13 @@ public class TestBase {
   }
 
   /**
-	 * Scroll to a element on the website
-	 * @param element
-	 * @param driver
-	 */
-	public static void scrollToElement(WebElement element, WebDriver driver) {
-		JavascriptExecutor jse = (JavascriptExecutor) driver;
-		jse.executeScript("arguments[0].scrollIntoView(true);", element);
-	}
-	/**
-	 * Scroll to bottom of the page of website
-	 * @param driver
-	 */
-	public static void scrollToBottomPage(WebDriver driver){
-		info("Scroll to the bottom of the page");
-		JavascriptExecutor js = (JavascriptExecutor)driver;
-        js.executeScript("window.scrollTo(0,Math.max(document.documentElement.scrollHeight," +
-        "document.body.scrollHeight,document.documentElement.clientHeight));");
-	}
-
-	/**
 	 *This function will try to get an element. if after timeout, the element is not found.
 	 *The function will refresh the page and find the element again.
 	 * @param element
 	 */
 	public void waitElementAndTryGetElement(Object element,Boolean... isClicked){
-		info("-- Starting finding element --");
-		Utils.pause(500);
-		for(int repeat=0;; repeat ++){
-			if (repeat > 1){
-				if(waitForAndGetElement(element,3000,0)!=null);
-				break;
-			}
-			if (waitForAndGetElement(element, 5000, 0) != null){
-				info("Element "+element+" is displayed");
-				if(isClicked.length>0 && isClicked[0]==true)
-					click(element);
-				break;
-			}
-			info("Retry...[" + repeat + "]");
-			this.driver.navigate().refresh();
-		}
-		Utils.pause(2000);
-		info("The elemnt is shown successfully");
-	}
+    elementEventTestBase.waitElementAndTryGetElement(element, isClicked);
+  }
 	
 	/**
 	 * Check if a checkbox is checked or not
@@ -1320,16 +663,211 @@ public class TestBase {
 	 * Date: Oct 30, 2015
 	 */
 	public boolean checkCheckBoxAttribute(String checkedElement){
-		info("Check checkbox attribute");
-		WebElement checkBox= waitForAndGetElement(checkedElement,2000,2,1);
-		if (checkBox != null && !checkBox.isSelected()) {
-			info("Checkbox is NOT selected");
-			return false;
-		} else if (checkBox != null && checkBox.isSelected()){
-			info("Checkbox IS SELECTED");
-			return true;
-		}
-		
-		return false;
-	}
+    return elementEventTestBase.checkCheckBoxAttribute(checkedElement);
+  }
+
+  /**
+   * Get minute in format "HH" from current date
+   *
+   * @return hours
+   */
+  public int getHours() {
+    return dateTestBase.getHours();
+  }
+
+  /**
+   * Get date by text format
+   * ex. Saturday, Febuary 16, 2015
+   *
+   * @param format
+   */
+  public String getDateByTextFormat(String format) {
+    return dateTestBase.getDateByTextFormat(format);
+  }
+
+  /**
+   * Get first day of week
+   *
+   * @param format
+   * @return firstDayOfWeek
+   */
+  public String getFirstDayOfWeek(String format) {
+    return dateTestBase.getFirstDayOfWeek(format);
+  }
+
+  /**
+   * Get last day of week
+   *
+   * @param format
+   * @return firstDayOfWeek
+   */
+  public String getLastDayOfWeek(String format) {
+    return dateTestBase.getLastDayOfWeek(format);
+  }
+
+  /**
+   * function get current Date of system follow a format
+   *
+   * @param format
+   * @return current Date of system
+   */
+  public String getCurrentDate(String format) {
+    return dateTestBase.getCurrentDate(format);
+  }
+
+  /**
+   * Get current date with time zone
+   *
+   * @param format
+   * @param local
+   * @return current Date with correct time zone
+   */
+  public String getCurrentDate(String format, String local) {
+    return dateTestBase.getCurrentDate(format,local);
+  }
+
+  /**
+   * Add 1 minute to current date time
+   *
+   * @param min
+   * @param format
+   * @return string minute
+   */
+  public String addMinuteToCurrentDateTime(int min, String... format) {
+    return dateTestBase.addMinuteToCurrentDateTime(min,format);
+  }
+
+  /**
+   * Get date in format "dd"
+   *
+   * @param gap distance from current date
+   * @return date in format "dd"
+   */
+  public String getDate(int gap, String format) {
+    return dateTestBase.getDate(gap,format);
+  }
+
+  /**
+   * Get date from firstDayOf Week
+   *
+   * @param gap
+   * @param format
+   * @return date in format
+   */
+  public String getDateFromFirstDayOfWeek(int gap, String format) {
+    return dateTestBase.getDateFromFirstDayOfWeek(gap,format);
+  }
+
+  /**
+   * Get day of week
+   *
+   * @param gap distance from current date
+   * @return day of week (monday, tuesday,..., sunday)
+   */
+  public int getDayOfWeek(int gap) {
+    return dateTestBase.getDayOfWeek(gap);
+  }
+
+  /**
+   * Get day of the next month
+   *
+   * @param format
+   * @return date
+   */
+  public String getDayOfNextMonth(String format, int dayNum, int weekNum) {
+    return dateTestBase.getDayOfNextMonth(format,dayNum,weekNum);
+  }
+
+  /**
+   * Get the day of next year
+   *
+   * @param format
+   * @param year
+   * @return dayOfYear
+   */
+  public String getDayOfNextYear(String format, int year) {
+    return dateTestBase.getDayOfNextYear(format,year);
+  }
+
+  /**
+   * Get the day of next week
+   *
+   * @param format
+   * @return
+   */
+  public String getDayOfNextWeek(String format) {
+    return dateTestBase.getDayOfNextWeek(format);
+  }
+
+  /**
+   * Get the number of current week
+   *
+   * @return weekNum
+   */
+  public int getWeekNumber() {
+    return dateTestBase.getWeekNumber();
+  }
+
+  public int getDayNumber() {
+    return dateTestBase.getDayNumber();
+  }
+
+  /**
+   * Get current month/day/year
+   *
+   * @param format as MMM for month, dd for day, or yyyy for year
+   * @return dateFormat.format(now.getTime())
+   */
+  public String getCurrentMonthDayYear(String format) {
+    return dateTestBase.getCurrentMonthDayYear(format);
+  }
+
+  /**
+   * Get minute in format "mm" from current date
+   *
+   * @return minute
+   */
+  public int getMinute() {
+    return dateTestBase.getMinute();
+  }
+
+  public int getDefaultTimeout() {
+    return DEFAULT_TIMEOUT;
+  }
+
+  public ElementEventTestBase getElementEventTestBase() {
+    return elementEventTestBase;
+  }
+
+  public WebDriver getSeleniumDriver() {
+    return seleniumDriver;
+  }
+
+  public WebDriver getNewSeleniumDriver() {
+    return newSeleniumDriver;
+  }
+
+  public int getLoopCount() {
+    return loopCount;
+  }
+
+  public void setLoopCount(int loopCount) {
+    this.loopCount = loopCount;
+  }
+
+  public String getBrowser(){
+    return driver.getBrowser();
+  }
+  public Actions getAction() {
+    return action;
+  }
+
+  public void setAction(Actions action) {
+    this.action = action;
+  }
+
+  public Driver getDriver() {
+    return driver;
+  }
+
 }

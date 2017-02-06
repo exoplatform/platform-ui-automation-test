@@ -27,15 +27,15 @@ public class DownloadFileControl {
     public void downloadFile(String downloadUrl) throws Exception {
  
         CookieStore cookieStore = seleniumCookiesToCookieStore();
-        @SuppressWarnings("resource")
-		DefaultHttpClient httpClient = new DefaultHttpClient();
-        httpClient.setCookieStore(cookieStore);
- 
-        HttpGet httpGet = new HttpGet(downloadUrl);
-        System.out.println("Downloding file form: " + downloadUrl);
-        HttpResponse response = httpClient.execute(httpGet);
- 
+        HttpResponse response;
         int httpStatusCode;
+        try (DefaultHttpClient httpClient = new DefaultHttpClient()) {
+            httpClient.setCookieStore(cookieStore);
+
+            HttpGet httpGet = new HttpGet(downloadUrl);
+            System.out.println("Downloding file form: " + downloadUrl);
+            response = httpClient.execute(httpGet);
+        }
         httpStatusCode=response.getStatusLine().getStatusCode();
         System.out.println("httpStatusCode:"+httpStatusCode);
         

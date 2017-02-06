@@ -1,17 +1,12 @@
 package org.exoplatform.platform.ui.automation.test.commons.selenium;
 
 import static org.exoplatform.platform.ui.automation.test.config.Logger.info;
+
+import org.exoplatform.platform.ui.automation.test.commons.selenium.testbase.ElementEventTestBase;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
 
 
 public class Dialog {
-
-	public Dialog(WebDriver dr) {
-		driver = dr;
-	}
-
-	public ManageAlert alt = new ManageAlert(driver);
 
 	//Dialog warning
 	public final String ELEMENT_POPUP_WARNING = "//*[@class='UIPopupWindow UIDragObject uiPopup']//*[@class='warningIcon' and contains(text(),'${message}')]";
@@ -27,17 +22,30 @@ public class Dialog {
 
 	//ECMS > Delete a document
 	public final By ELEMENT_DELETE_IN_DIALOG = By.xpath("//*[contains(@class, 'uiAction')]//*[text()='Delete']");
+
 	public final By ELEMENT_CANCEL_IN_DIALOG = By.xpath("//*[contains(@class, 'uiAction')]//*[text()='Cancel']");
+
+	private final TestBase testBase;
+
+	private ElementEventTestBase evt;
+
+	public ManageAlert alt;
+
+	public Dialog(TestBase testBase) {
+		this.testBase = testBase;
+		this.evt = testBase.getElementEventTestBase();
+		this.alt = new ManageAlert(testBase);
+	}
 
 	/**
 	 * Close Message Dialog
 	 */
 	public void closeMessageDialog() {
 		info("--Closing message dialog--");
-		if (ieFlag) {
-			click(ELEMENT_MESSAGE_DIALOG_CLOSE_ICON_IE);
+		if (testBase.ieFlag) {
+			evt.click(ELEMENT_MESSAGE_DIALOG_CLOSE_ICON_IE);
 		} else {
-			click(ELEMENT_MESSAGE_DIALOG_CLOSE_ICON);
+			evt.click(ELEMENT_MESSAGE_DIALOG_CLOSE_ICON);
 		}
 		Utils.pause(1000);
 	}
@@ -46,8 +54,8 @@ public class Dialog {
 	 * Click button Delete in Dialog
 	 */
 	public void deleteInDialog(){
-		waitForAndGetElement(ELEMENT_DELETE_IN_DIALOG);
-		click(ELEMENT_DELETE_IN_DIALOG);
+		evt.waitForAndGetElement(ELEMENT_DELETE_IN_DIALOG);
+		evt.click(ELEMENT_DELETE_IN_DIALOG);
 		Utils.pause(3000);
 	}
 }

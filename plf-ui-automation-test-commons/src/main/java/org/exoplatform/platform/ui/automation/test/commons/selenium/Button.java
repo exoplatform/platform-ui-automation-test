@@ -1,6 +1,7 @@
 package org.exoplatform.platform.ui.automation.test.commons.selenium;
 
 
+import org.exoplatform.platform.ui.automation.test.commons.selenium.testbase.ElementEventTestBase;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
@@ -8,12 +9,8 @@ import org.openqa.selenium.WebDriver;
  * This class provides simple way to manage all type of buttons in PLF4
  *
  */
-public class Button extends TestBase{
-
-	public Button(WebDriver dr,String...plfVersion) {
-		this.driver = dr;
-	}
-
+public class Button{
+	
 	public final By ELEMENT_SAVE_CLOSE_BUTTON = By.xpath("//*[text()='Save & Close']");
 	public final By ELEMENT_SAVE_CLOSE_BUTTON_2 = By.xpath("//*[text()='Save And Close']");
 
@@ -62,12 +59,22 @@ public class Button extends TestBase{
 	public final By ELEMENT_RENAME_BUTTON = By.xpath("//*[text()='Rename']");
 	public final By ELEMENT_NEXT_PAGE_BUTTON = By.xpath("//*[(@data-original-title or @title)='Next Page']");
 
+	private final TestBase testBase;
+
+	private ElementEventTestBase evt;
+
+	public Button(TestBase testBase) {
+		this.testBase = testBase;
+		this.evt = testBase.getElementEventTestBase();
+	}
+
+
 	/**
 	 * Click button confirm
 	 */
 	public void confirm() {
-		waitForAndGetElement(ELEMENT_CONFIRM_BUTTON);
-		click(ELEMENT_CONFIRM_BUTTON);
+		evt.waitForAndGetElement(ELEMENT_CONFIRM_BUTTON);
+		evt.click(ELEMENT_CONFIRM_BUTTON);
 		Utils.pause(500);
 	}
 
@@ -75,8 +82,8 @@ public class Button extends TestBase{
 	 * Click button save
 	 */
 	public void save() {
-		waitForAndGetElement(ELEMENT_SAVE_BUTTON);
-		click(ELEMENT_SAVE_BUTTON);
+		evt.waitForAndGetElement(ELEMENT_SAVE_BUTTON);
+		evt.click(ELEMENT_SAVE_BUTTON);
 		Utils.pause(500);
 	}
 
@@ -84,10 +91,10 @@ public class Button extends TestBase{
 	 * Click button ok
 	 */
 	public void ok() {
-		if (waitForAndGetElement(ELEMENT_OK_BUTTON, 5000, 0) != null){
-			click(ELEMENT_OK_BUTTON);
-		}else if (waitForAndGetElement(ELEMENT_OK_BUTTON_LINK, 5000, 0) != null){
-			click(ELEMENT_OK_BUTTON_LINK);
+		if (evt.waitForAndGetElement(ELEMENT_OK_BUTTON, 5000, 0) != null){
+			evt.click(ELEMENT_OK_BUTTON);
+		}else if (evt.waitForAndGetElement(ELEMENT_OK_BUTTON_LINK, 5000, 0) != null){
+			evt.click(ELEMENT_OK_BUTTON_LINK);
 		}
 		Utils.pause(500);
 	}
@@ -96,8 +103,8 @@ public class Button extends TestBase{
 	 * Click button no
 	 */
 	public void no() {
-		waitForAndGetElement(ELEMENT_NO_BUTTON);
-		click(ELEMENT_NO_BUTTON);
+		evt.waitForAndGetElement(ELEMENT_NO_BUTTON);
+		evt.click(ELEMENT_NO_BUTTON);
 		Utils.pause(500);
 	}
 
@@ -105,10 +112,10 @@ public class Button extends TestBase{
 	 * Click button yes
 	 */
 	public void yes() {		
-		if (waitForAndGetElement(ELEMENT_YES_BUTTON, 3000, 0) != null){
-			clickByJavascript(ELEMENT_YES_BUTTON);
-		}else if (waitForAndGetElement(ELEMENT_YES_BUTTON_AUX, 3000, 0) != null){
-			clickByJavascript(ELEMENT_YES_BUTTON_AUX);
+		if (evt.waitForAndGetElement(ELEMENT_YES_BUTTON, 3000, 0) != null){
+			evt.clickByJavascript(ELEMENT_YES_BUTTON);
+		}else if (evt.waitForAndGetElement(ELEMENT_YES_BUTTON_AUX, 3000, 0) != null){
+			evt.clickByJavascript(ELEMENT_YES_BUTTON_AUX);
 		}
 		Utils.pause(500);
 	}
@@ -117,8 +124,8 @@ public class Button extends TestBase{
 	 * Click button close
 	 */
 	public void close(){
-		waitForAndGetElement(ELEMENT_CLOSE_BUTTON);
-		click(ELEMENT_CLOSE_BUTTON);
+		evt.waitForAndGetElement(ELEMENT_CLOSE_BUTTON);
+		evt.click(ELEMENT_CLOSE_BUTTON);
 		Utils.pause(500);
 	}
 
@@ -126,10 +133,10 @@ public class Button extends TestBase{
 	 * Click button cancel
 	 */
 	public void cancel(){
-		if (waitForAndGetElement(ELEMENT_CANCEL_BUTTON, 3000, 0) != null){
-			click(ELEMENT_CANCEL_BUTTON);
-		}else if (waitForAndGetElement(ELEMENT_CANCEL_BUTTON_AUX, 3000, 0) != null){
-			click(ELEMENT_CANCEL_BUTTON_AUX);
+		if (evt.waitForAndGetElement(ELEMENT_CANCEL_BUTTON, 3000, 0) != null){
+			evt.click(ELEMENT_CANCEL_BUTTON);
+		}else if (evt.waitForAndGetElement(ELEMENT_CANCEL_BUTTON_AUX, 3000, 0) != null){
+			evt.click(ELEMENT_CANCEL_BUTTON_AUX);
 		}
 	}
 
@@ -137,9 +144,9 @@ public class Button extends TestBase{
 	 * Click button add
 	 */
 	public void add(){
-		waitForAndGetElement(ELEMENT_ADD_BUTTON);
-		click(ELEMENT_ADD_BUTTON);
-		waitForElementNotPresent(ELEMENT_ADD_BUTTON);
+		evt.waitForAndGetElement(ELEMENT_ADD_BUTTON);
+		evt.click(ELEMENT_ADD_BUTTON);
+		evt.waitForElementNotPresent(ELEMENT_ADD_BUTTON);
 		Utils.pause(500);
 	}
 
@@ -147,10 +154,10 @@ public class Button extends TestBase{
 	 * Click button Save and Close
 	 */
 	public void saveAndClose(){
-		if (waitForAndGetElement(ELEMENT_SAVE_CLOSE_BUTTON, 3000, 0) != null){
-			click(ELEMENT_SAVE_CLOSE_BUTTON);
-		}else if (waitForAndGetElement(ELEMENT_SAVE_CLOSE_BUTTON_2, 3000, 0) != null){
-			click(ELEMENT_SAVE_CLOSE_BUTTON_2);
+		if (evt.waitForAndGetElement(ELEMENT_SAVE_CLOSE_BUTTON, 3000, 0) != null){
+			evt.click(ELEMENT_SAVE_CLOSE_BUTTON);
+		}else if (evt.waitForAndGetElement(ELEMENT_SAVE_CLOSE_BUTTON_2, 3000, 0) != null){
+			evt.click(ELEMENT_SAVE_CLOSE_BUTTON_2);
 		}
 		Utils.pause(500);
 	}
@@ -159,25 +166,25 @@ public class Button extends TestBase{
 	 * Click btton apply
 	 */
 	public void apply(){
-		waitForAndGetElement(ELEMENT_APPLY_BUTTON);
-		click(ELEMENT_APPLY_BUTTON);
+		evt.waitForAndGetElement(ELEMENT_APPLY_BUTTON);
+		evt.click(ELEMENT_APPLY_BUTTON);
 	}
 
 	/**
 	 * Click button next
 	 */
 	public void next(){
-		waitForAndGetElement(ELEMENT_NEXT_BUTTON);
-		click(ELEMENT_NEXT_BUTTON);	
+		evt.waitForAndGetElement(ELEMENT_NEXT_BUTTON);
+		evt.click(ELEMENT_NEXT_BUTTON);
 		Utils.pause(500);
 	}
 
 	/**
 	 * Click button refresh
 	 */
-	public void refresh(){	
-		waitForAndGetElement(ELEMENT_REFRESH_BUTTON);
-		click(ELEMENT_REFRESH_BUTTON);
+	public void refresh(){
+		evt.waitForAndGetElement(ELEMENT_REFRESH_BUTTON);
+		evt.click(ELEMENT_REFRESH_BUTTON);
 		Utils.pause(500);
 	}
 
@@ -185,8 +192,8 @@ public class Button extends TestBase{
 	 * Click button rename
 	 */
 	public void rename(){
-		waitForAndGetElement(ELEMENT_RENAME_BUTTON);
-		click(ELEMENT_RENAME_BUTTON);
+		evt.waitForAndGetElement(ELEMENT_RENAME_BUTTON);
+		evt.click(ELEMENT_RENAME_BUTTON);
 		Utils.pause(500);
 	}
 
@@ -194,8 +201,8 @@ public class Button extends TestBase{
 	 * click button previous
 	 */
 	public void previous(){
-		waitForAndGetElement(ELEMENT_PREVIOUS_BUTTON);
-		click(ELEMENT_PREVIOUS_BUTTON);	
+		evt.waitForAndGetElement(ELEMENT_PREVIOUS_BUTTON);
+		evt.click(ELEMENT_PREVIOUS_BUTTON);
 		Utils.pause(500);
 	}
 
@@ -203,10 +210,11 @@ public class Button extends TestBase{
 	 * Click button closeWinow
 	 */
 	public void closeWindow(){
-		if (isElementPresent(ELEMENT_CLOSE_WINDOW)){
-			click(ELEMENT_CLOSE_WINDOW);
-		}else if (isElementPresent(By.xpath("//*[contains(@class, 'wikiPreviewHeader')]//*[contains(@class, 'uiIconClose')]"))){
-			click(By.xpath("//*[contains(@class, 'wikiPreviewHeader')]//*[contains(@class, 'uiIconClose')]"));
+		if (evt.isElementPresent(ELEMENT_CLOSE_WINDOW)){
+			evt.click(ELEMENT_CLOSE_WINDOW);
+		}else if (evt.isElementPresent(By.xpath(
+						"//*[contains(@class, 'wikiPreviewHeader')]//*[contains(@class, 'uiIconClose')]"))){
+			evt.click(By.xpath("//*[contains(@class, 'wikiPreviewHeader')]//*[contains(@class, 'uiIconClose')]"));
 		}
 		Utils.pause(1000);
 	}

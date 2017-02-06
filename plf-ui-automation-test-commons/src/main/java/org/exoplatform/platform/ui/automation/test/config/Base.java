@@ -6,6 +6,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
+import org.exoplatform.platform.ui.automation.test.commons.selenium.TestBase;
 import org.junit.Before;
 
 import com.codeborne.selenide.Configuration;
@@ -13,7 +14,7 @@ import com.codeborne.selenide.Configuration;
 /**
  * Created by mgreau on 20/01/2017.
  */
-public class Base {
+public class Base extends TestBase{
 
   @Before
   public void setup() throws SocketException {

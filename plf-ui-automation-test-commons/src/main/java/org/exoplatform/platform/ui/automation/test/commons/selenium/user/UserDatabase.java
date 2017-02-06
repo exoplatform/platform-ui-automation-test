@@ -2,7 +2,6 @@ package org.exoplatform.platform.ui.automation.test.commons.selenium.user;
 
 import java.util.ArrayList;
 
-import org.exoplatform.selenium.platform.objectdatabase.common.DatabaseResource;
 
 public class UserDatabase {
 	public ArrayList<Integer> type;
@@ -44,7 +43,13 @@ public class UserDatabase {
 	 * @throws Exception
 	 */
 	public void setUserData(String userDataFile, String userSheet, Object... opParams) throws Exception{
-		String[][] testData = DatabaseResource.getDataFromSource(userDataFile,userSheet,opParams);
+		// Mock (to update)
+		String[][] testData = new String[][] {{ "X0", "Y0"},
+						{ "X1", "Y1"},
+						{ "X2", "Y2"},
+						{ "X3", "Y3"},
+						{ "X4", "Y4"}};
+		//DatabaseResource.getDataFromSource(userDataFile,userSheet,opParams);
 		for(int i = 0; i<testData.length; i++)
 		{	
 			type.add(Integer.valueOf(testData[i][0]));

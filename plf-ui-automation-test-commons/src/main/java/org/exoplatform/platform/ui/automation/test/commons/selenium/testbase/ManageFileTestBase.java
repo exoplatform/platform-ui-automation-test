@@ -347,7 +347,7 @@ public class ManageFileTestBase {
     Logger.info("Upload file using Robot");
     Robot robot = new Robot();
 
-    // Get the focus on the element..don't use click since it stalls the driver
+    // Get the focus on the element..don't use click since it stalls the seleniumWebDriver
     element.sendKeys("");
 
     //simulate pressing enter
